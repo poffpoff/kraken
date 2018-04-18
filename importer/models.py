@@ -20,3 +20,16 @@ class Data(models.Model):
     value = models.ForeignKey(Value, on_delete=models.CASCADE)
     data = models.FloatField()
     time = models.DateTimeField()
+
+    def __str__(self):
+        return self.name
+
+class ValeurTrade(models.Model):
+    name = models.ForeignKey(Pair, on_delete=models.CASCADE)
+    id_echange = models.FloatField()
+    price = models.FloatField()
+    bs = models.FloatField()
+    ml = models.FloatField()
+    misce = models.FloatField()
+    time = models.DateTimeField()
+
