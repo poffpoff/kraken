@@ -104,7 +104,7 @@ while boucleBDD <  Tailleextraction :
 
     boucleBDD += 1
 
-pprint.pprint('ah')
+
 #pprint.pprint(trades['price'])
 
 # DataColonne1bdd = trades['price'].as_matrix()
