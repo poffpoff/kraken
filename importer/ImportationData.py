@@ -69,13 +69,13 @@ cur =connexion.cursor()
 
 while boucleBDD <  1 :
     Numeroplus = float(1524059916390775696 + boucleBDD)
-    cur.execute("INSERT INTO importer_testtest(name) Values ('TESTE2')")
-   # connexion.execute("INSERT INTO ValeurTrade (name, numeroechange, price,bs,ml,misce,time) VALUES ('XBTEUR', "+float(Numeroplus)+", "+float(DataColonne1bdd[boucleBDD])+", "+str(DataColonne4bdd[boucleBDD])+", "+str(DataColonne4bdd[boucleBDD])+", "+str(DataColonne5bdd[boucleBDD])+", "+DateActuelle+")")
+   # cur.execute("INSERT INTO importer_testtest(name) Values ('TESTE2')")
+    cur.execute("INSERT INTO importer_ValeurTradebits(name, numeroechange, price, bs, ml, misce, time) VALUES('XBTEUR', "+str(Numeroplus)+", "+str(DataColonne1bdd[boucleBDD])+", "+str(DataColonne4bdd[boucleBDD])+", "+str(DataColonne4bdd[boucleBDD])+", "+str(DataColonne5bdd[boucleBDD])+", "+DateActuelle+")")
 #    ValeurTrade(name="XBTEUR", numeroechange=, price=DataColonne1bdd[boucleBDD],bs=DataColonne3bdd[boucleBDD],ml=DataColonne4bdd[boucleBDD],misce=DataColonne5bdd[boucleBDD],time=DateActuelle ).save()
     connexion.commit()
     boucleBDD += 1
 
-datefozieoz = connexion.execute("select * from importer_testtest")
+
 connexion.close
 
 trades.to_csv('data.csv',sep = ';')
