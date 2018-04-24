@@ -1,21 +1,23 @@
 from django.contrib import admin
-from importer.models import Pair, Data, Value,LastTrade,testtest,ValeurTrade
-
-class ValueInline(admin.TabularInline):
-    model = Value
-
-class DataInline(admin.TabularInline):
-    model = Data
+from importer.models import Pair , TradeValue, Ask, Bid
 
 
-class ValueAdmin(admin.ModelAdmin):
+
+class AskInline(admin.TabularInline):
+    model = Ask
+
+class BidInline(admin.TabularInline):
+    model = Bid
+
+class ValeurTradeInline(admin.TabularInline):
+    model = TradeValue
+
+class PairAdmin(admin.ModelAdmin):
     inlines = [
-        DataInline,
+        AskInline,
+        BidInline,
+        ValeurTradeInline,
     ]
 
 # Register your models here.
-admin.site.register(Value, ValueAdmin)
-admin.site.register(Pair)
-admin.site.register(LastTrade)
-admin.site.register(testtest)
-admin.site.register(ValeurTrade)
+admin.site.register(Pair, PairAdmin)

@@ -1,0 +1,18 @@
+Celery -> Queue tasks manager
+Rabiitmq > Url broker than celery will use
+
+Need to install Rabbitmq server
+Need ton install celery package
+Need ton install django-celery-results package
+Need ton install django-celery-beat package
+
+Lancer le serveur Rabbitmq
+PATH=$PATH:/usr/local/sbin
+rabbitmq-server
+https://stackoverflow.com/questions/25869858/celery-error-in-connecting-to-rabbitmq-server
+
+Lancer celery worker -> celery -A kraken worker --loglevel=info
+
+Lancer celery beat -> elery -A kraken beat
+
+

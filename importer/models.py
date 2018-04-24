@@ -9,41 +9,29 @@ class Pair(models.Model):
         return self.name
 
 
-class Value(models.Model):
-    name = models.CharField(max_length=200, default='Error')
-    pair = models.ForeignKey(Pair, on_delete=models.CASCADE, default='Error')
 
-    def __str__(self):
-        return self.name
-
-class ValeurTrade(models.Model):
-    name = models.CharField(max_length=200, default='Error')
-    numeroechange = models.FloatField()
+class TradeValue(models.Model):
+    pair = models.ForeignKey(Pair, on_delete=models.CASCADE, default='0')
     price = models.FloatField()
-    bs = models.CharField(max_length=200, default='Error')
-    ml = models.CharField(max_length=200, default='Error')
-    misce = models.CharField(max_length=200, default='Error')
-    time = models.DateTimeField()
+    volume = models.FloatField()
+    time = models.FloatField()
+    bs = models.CharField(max_length=200, default='')
+    ml = models.CharField(max_length=200, default='')
+    misce = models.CharField(max_length=200, default='')
 
-    def __str__(self):
-        return self.name
 
-class LastTrade(models.Model):
-    name = models.CharField(max_length=200, default='Error')
-    valueLast = models.FloatField()
 
-    def __str__(self):
-        return self.name
+class OrderValue(models.Model):
+    price = models.FloatField()
+    volume = models.FloatField()
+    timestamp = models.FloatField()
 
-class Data(models.Model):
-    value = models.ForeignKey(Value, on_delete=models.CASCADE, default=1)
-    data = models.FloatField()
-    time = models.DateTimeField()
+class Ask(OrderValue):
+    pair = models.ForeignKey(Pair, on_delete=models.CASCADE, default='0')
 
-    def __str__(self):
-        return self.name
 
-class testtest(models.Model):
-    name = models.CharField(max_length=200, default='Error')
+class Bid(OrderValue):
+    pair = models.ForeignKey(Pair, on_delete=models.CASCADE, default='0')
+
 
 
