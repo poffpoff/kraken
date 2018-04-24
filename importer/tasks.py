@@ -5,6 +5,8 @@ import krakenex
 import pprint
 from requests.exceptions import HTTPError
 from importer.models import TradeValue, Pair, Bid, Ask
+from django.db.models import Max
+from django.db.models import FloatField
 
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
@@ -16,7 +18,13 @@ def import_all_trade_values():
     k = krakenex.API()
     for pair in pair_set:
         try:
-            response = k.query_public('Trades', {'pair': pair.name})
+            since = TradeValue.objects.filter(pair_id=pair.id).aggregate(Max('time', output_field=FloatField()))
+            if (since) :
+                since_id = int(since['time__max'] * 1000000000)
+                pprint.pprint(since_id)
+                response = k.query_public('Trades', {'pair': pair.name, 'since' :  since_id})
+            else:
+                response = k.query_public('Trades', {'pair': pair.name})
         except HTTPError as e:
             print(str(e))
 

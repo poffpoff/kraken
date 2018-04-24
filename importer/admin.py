@@ -10,8 +10,8 @@ class AskInline(admin.TabularInline):
     def get_queryset(self, request):
         LIMIT_SEARCH = 10
         queryset = super(AskInline, self).get_queryset(request)
-        ids = queryset.order_by('-id').values('pk')[:LIMIT_SEARCH]
-        qs = Ask.objects.filter(pk__in=ids).order_by('-id')
+        ids = queryset.order_by('-timestamp').values('pk')[:LIMIT_SEARCH]
+        qs = Ask.objects.filter(pk__in=ids).order_by('-timestamp')
         return qs
 
 class BidInline(admin.TabularInline):
@@ -21,8 +21,8 @@ class BidInline(admin.TabularInline):
     def get_queryset(self, request):
         LIMIT_SEARCH = 10
         queryset = super(BidInline, self).get_queryset(request)
-        ids = queryset.order_by('-id').values('pk')[:LIMIT_SEARCH]
-        qs = Bid.objects.filter(pk__in=ids).order_by('-id')
+        ids = queryset.order_by('-timestamp').values('pk')[:LIMIT_SEARCH]
+        qs = Bid.objects.filter(pk__in=ids).order_by('-timestamp')
         return qs
 
 class TradeValueInline(admin.TabularInline):
@@ -32,8 +32,8 @@ class TradeValueInline(admin.TabularInline):
     def get_queryset(self, request):
         LIMIT_SEARCH = 50
         queryset = super(TradeValueInline, self).get_queryset(request)
-        ids = queryset.order_by('-id').values('pk')[:LIMIT_SEARCH]
-        qs = TradeValue.objects.filter(pk__in=ids).order_by('-id')
+        ids = queryset.order_by('-time').values('pk')[:LIMIT_SEARCH]
+        qs = TradeValue.objects.filter(pk__in=ids).order_by('-time')
         return qs
 
 class PairAdmin(admin.ModelAdmin):
