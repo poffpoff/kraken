@@ -16,19 +16,31 @@ logger = get_task_logger(__name__)
 def import_all_trade_values():
     pair_set = Pair.objects.all()
     k = krakenex.API()
+    # get the las trade values since the last data save into the db
     for pair in pair_set:
         try:
             since = TradeValue.objects.filter(pair_id=pair.id).aggregate(Max('time', output_field=FloatField()))
-            if (since) :
+            if (since['time__max']) :
                 since_id = int(since['time__max'] * 1000000000)
                 pprint.pprint(since_id)
                 response = k.query_public('Trades', {'pair': pair.name, 'since' :  since_id})
+                pprint.pprint(response['result']['last'])
             else:
                 response = k.query_public('Trades', {'pair': pair.name})
         except HTTPError as e:
             print(str(e))
 
-        for trade in response['result']['XXBTZEUR']:
+        # trick to get the right name of the set
+        i = 0
+        title_ok = ''
+        for title in response['result']:
+            if (i==0):
+                title_ok = title
+                pprint.pprint(title)
+            i=i+1
+
+        # save data into database only if the value with th same time doen't exist already
+        for trade in response['result'][title_ok]:
             if(TradeValue.objects.filter(time = trade[2])):
                 pprint.pprint("trade already exist")
             else:
@@ -53,7 +65,16 @@ def import_all_order_books():
         except HTTPError as e:
             print(str(e))
 
-        for ask in response['result']['XXBTZEUR']['asks']:
+        # trick to get the right name of the set
+        i = 0
+        title_ok = ''
+        for title in response['result']:
+            if (i==0):
+                title_ok = title
+                pprint.pprint(title)
+            i=i+1
+
+        for ask in response['result'][title_ok]['asks']:
             if(Ask.objects.filter(timestamp = ask[2])):
                 pprint.pprint("ask already exist")
             else:
@@ -64,7 +85,7 @@ def import_all_order_books():
                                                   timestamp=ask[2])
                 new_ask.save()
 
-        for bid in response['result']['XXBTZEUR']['bids']:
+        for bid in response['result'][title_ok]['bids']:
             if(Bid.objects.filter(timestamp = bid[2])):
                 pprint.pprint("bid already exist")
             else:
