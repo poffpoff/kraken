@@ -58,7 +58,7 @@ ROOT_URLCONF = 'kraken.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'importer/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

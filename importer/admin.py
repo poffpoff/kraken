@@ -43,6 +43,7 @@ class PairAdmin(admin.ModelAdmin):
         TradeValueInline,
     ]
 
+    readonly_fields = ('trade_value',)
 
 # Register your models here.
 admin.site.register(Pair, PairAdmin)

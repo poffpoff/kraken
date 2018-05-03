@@ -1,0 +1,25 @@
+<script type="text/javascript">
+var chart;
+jQuery(document).ready(function() {
+	Highcharts.stockChart('stock_chart', {
+	 rangeSelector: {
+            selected: 1
+        },
+
+        title: {
+            text: '{{title}}'
+        },
+        series: [{
+            name: '{{name}}',
+            data: {{data}},
+            tooltip: {
+                valueDecimals: 2
+            }
+        }]
+    });
+
+});
+
+</script>
+
+<div id="stock_chart" style="width: 700px;height: 500px"></div>
