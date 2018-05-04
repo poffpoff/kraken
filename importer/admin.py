@@ -43,7 +43,7 @@ class PairAdmin(admin.ModelAdmin):
         TradeValueInline,
     ]
 
-    readonly_fields = ('trade_value',)
+    readonly_fields = ('trade_chart','depth_chart')
 
 # Register your models here.
 admin.site.register(Pair, PairAdmin)

@@ -1,0 +1,75 @@
+<script type="text/javascript">
+var chart;
+jQuery(document).ready(function() {
+	Highcharts.chart('depth_chart', {
+	 rangeSelector: {
+            selected: 1
+        },
+
+        chart: {
+            type: 'area'
+        },
+
+        title: {
+            text: '{{title}}'
+        },
+
+        xAxis: {
+            title: {
+                text: 'Price'
+            },
+            labels: {
+                formatter: function () {
+                    return this.value; // clean, unformatted number for year
+                }
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Sum Volume'
+            },
+            labels: {
+                formatter: function () {
+                    return this.value / 1000 + 'k';
+                }
+            }
+        },
+        plotOptions: {
+        area: {
+            marker: {
+                enabled: false,
+                symbol: 'circle',
+                radius: 2,
+                states: {
+                    hover: {
+                        enabled: true
+                        }
+                    }
+                }
+            }
+        },
+        series: [{
+            // specific options for this series instance
+            type: 'area',
+            name: '{{ask_name}}',
+            data: {{ask_data}},
+            tooltip: {
+               valueDecimals: 2
+             }
+        },
+        {
+            // specific options for this series instance
+            type: 'area',
+            name: '{{bid_name}}',
+            data: {{bid_data}},
+            tooltip: {
+               valueDecimals: 2
+             }
+        }]
+    });
+
+});
+
+</script>
+
+<div id="depth_chart" style="width: 700px;height: 500px"></div>
