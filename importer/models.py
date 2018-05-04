@@ -20,6 +20,7 @@ class Pair(models.Model):
             data_list.append(temp)
         data_dict = { 'data' : data_list,
                       'title' : 'Trade Price ' + self.name,
+                      'currency': self.name[-3:],
                       'name' : self.name}
         return render_to_string('admin/importer/pair/stock_chart.html', data_dict )
 
@@ -42,6 +43,7 @@ class Pair(models.Model):
                       'ask_name' : "Ask " + self.name,
                       'bid_data': bid_list,
                       'bid_name': "Bid " + self.name,
+                      'currency': self.name[-3:],
                       'title': 'Depth ' + self.name
                       }
         return render_to_string('admin/importer/pair/depth_chart.html', data_dict )
