@@ -16,10 +16,10 @@ logger = get_task_logger(__name__)
 def import_all_trade_values():
     pair_set = Pair.objects.all()
     k = krakenex.API()
-    # get the las trade values since the last data save into the db
     for pair in pair_set:
         if (pair.enable_import) :
             try:
+                # get the las trade values since the last data save into the db
                 since = TradeValue.objects.filter(pair_id=pair.id).aggregate(Max('time', output_field=FloatField()))
                 if (since['time__max']) :
                     since_id = int(since['time__max'] * 1000000000)
@@ -47,6 +47,7 @@ def import_all_trade_values():
                     pprint.pprint("trade already exist")
                 else:
                     pprint.pprint(pair.name)
+                    pprint.pprint('trade')
                     pprint.pprint(trade)
                     new_trade = TradeValue.objects.create(pair = pair,
                                                           price=trade[0],
@@ -87,6 +88,7 @@ def import_all_order_books():
                     pprint.pprint("ask already exist")
                 else:
                     pprint.pprint(pair.name)
+                    pprint.pprint('ask')
                     pprint.pprint(ask)
                     new_ask = Ask.objects.create(pair = pair,
                                                       price=ask[0],
@@ -100,6 +102,7 @@ def import_all_order_books():
                     pprint.pprint("bid already exist")
                 else:
                     pprint.pprint(pair.name)
+                    pprint.pprint('bid')
                     pprint.pprint(bid)
                     new_bid = Bid.objects.create(pair = pair,
                                                       price=bid[0],

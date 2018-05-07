@@ -18,7 +18,17 @@ jQuery(document).ready(function() {
             tooltip: {
                 valueDecimals: 2
             }
-        }]
+        }
+        {% if moving_average_data %}
+        ,{
+            name: 'moving_average_data',
+            data: {{moving_average_data}},
+            tooltip: {
+                valueDecimals: 2
+            }
+        }
+        {% endif %}
+        ]
     });
 
 });

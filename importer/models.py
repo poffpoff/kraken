@@ -7,8 +7,8 @@ from django.template.loader import render_to_string
 
 
 class Pair(models.Model):
-    name = models.CharField(max_length=200, default='Error')
     enable_import = models.BooleanField(default=True)
+    name = models.CharField(max_length=200, default='')
     def __str__(self):
         return self.name
 

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'calculator',
     'importer',
     'celery',
     'django_celery_results',
@@ -58,7 +59,8 @@ ROOT_URLCONF = 'kraken.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'importer/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'importer/templates'),
+                 os.path.join(BASE_DIR, 'calculator/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -88,6 +90,11 @@ DATABASES = {
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_IMPORTS = (
+    'importer.tasks',
+    'calculator.tasks',
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
