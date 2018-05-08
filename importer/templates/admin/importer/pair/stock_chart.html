@@ -28,6 +28,15 @@ jQuery(document).ready(function() {
             }
         }
         {% endif %}
+        {% if low_pass_data %}
+        ,{
+            name: 'low_pass_data',
+            data: {{low_pass_data}},
+            tooltip: {
+                valueDecimals: 2
+            }
+        }
+        {% endif %}
         ]
     });
 
