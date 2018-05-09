@@ -57,13 +57,15 @@ class Pair(models.Model):
                       }
         return render_to_string('admin/importer/pair/depth_chart.html', data_dict )
 
-    def launch_import_trade_value(self, since):
+
+    def launch_import_trade_value(self, since=0):
         k = krakenex.API()
         to_id = int(datetime.datetime.now().timestamp() * 1000000000)
 
-        if(since):
+        if(since is not 0):
             since_id = int(since * 1000000000)
         else:
+            pprint.pprint('since is  0')
             # get the las trade values since the last data save into the db
             since_max = TradeValue.objects.filter(pair_id=self.id).aggregate(Max('time', output_field=FloatField()))
             if(since_max['time__max']) :
@@ -94,7 +96,7 @@ class Pair(models.Model):
 
             # save data into database only if the value with th same time doen't exist already
             for trade in response['result'][title_ok]:
-                if (TradeValue.objects.filter(time=trade[2])):
+                if (TradeValue.objects.filter(pair_id=self.id, time=trade[2])):
                     pprint.pprint(self.name)
                     pprint.pprint("trade already exist")
                 else:
@@ -141,7 +143,7 @@ class Pair(models.Model):
         Bid.objects.all().delete()
 
         for ask in response['result'][title_ok]['asks']:
-            if (Ask.objects.filter(timestamp=ask[2])):
+            if (Ask.objects.filter(pair=self, timestamp=ask[2])):
                 pprint.pprint(self.name)
                 pprint.pprint("ask already exist")
             else:
@@ -155,7 +157,7 @@ class Pair(models.Model):
                 new_ask.save()
 
         for bid in response['result'][title_ok]['bids']:
-            if (Bid.objects.filter(timestamp=bid[2])):
+            if (Bid.objects.filter(pair_id=self.id, timestamp=bid[2])):
                 pprint.pprint(self.name)
                 pprint.pprint("bid already exist")
             else:
