@@ -1,19 +1,28 @@
+import datetime
+import pprint
 
 from django.db import models
 
 # Create your models here.
-from django.db.models import Sum
+from django.db.models import Sum, Max, FloatField
 from django.template.loader import render_to_string
+from django.utils import timezone
+from requests import HTTPError
+
+
+import krakenex
 
 
 class Pair(models.Model):
-    enable_import = models.BooleanField(default=True)
     name = models.CharField(max_length=200, default='')
+    enabled_auto_import = models.BooleanField(default=True)
+    since = models.DateTimeField(default=timezone.now)
+
     def __str__(self):
         return self.name
 
     def trade_chart(self):
-        tradeValue_set = TradeValue.objects.filter(pair = self)
+        tradeValue_set = TradeValue.objects.filter(pair = self).order_by('time')
         data_list = []
         for tradeValue in tradeValue_set :
             temp = [int(tradeValue.time*1000), tradeValue.price]
@@ -47,6 +56,119 @@ class Pair(models.Model):
                       'title': 'Depth ' + self.name
                       }
         return render_to_string('admin/importer/pair/depth_chart.html', data_dict )
+
+    def launch_import_trade_value(self, since):
+        k = krakenex.API()
+        to_id = int(datetime.datetime.now().timestamp() * 1000000000)
+
+        if(since):
+            since_id = int(since * 1000000000)
+        else:
+            # get the las trade values since the last data save into the db
+            since_max = TradeValue.objects.filter(pair_id=self.id).aggregate(Max('time', output_field=FloatField()))
+            if(since_max['time__max']) :
+                since_id = int(since * 1000000000)
+
+        while True:
+            try:
+                if (since_id):
+                    response = k.query_public('Trades', {'pair': self.name, 'since': since_id})
+                else:
+                    response = k.query_public('Trades', {'pair': self.name})
+            except HTTPError as e:
+                print(str(e))
+
+            # trick to get the right name of the set
+            i = 0
+            title_ok = ''
+            try:
+                response['result']
+            except:
+                continue
+
+            for title in response['result']:
+                if (i == 0):
+                    title_ok = title
+                    pprint.pprint(title)
+                i = i + 1
+
+            # save data into database only if the value with th same time doen't exist already
+            for trade in response['result'][title_ok]:
+                if (TradeValue.objects.filter(time=trade[2])):
+                    pprint.pprint(self.name)
+                    pprint.pprint("trade already exist")
+                else:
+                    pprint.pprint(self.name)
+                    pprint.pprint('trade')
+                    pprint.pprint(trade)
+                    new_trade = TradeValue.objects.create(pair=self,
+                                                          price=trade[0],
+                                                          volume=trade[1],
+                                                          time=trade[2],
+                                                          bs=trade[3],
+                                                          ml=trade[4],
+                                                          misce=trade[5])
+                    new_trade.save()
+
+
+
+                last_id = int(response['result']['last'])
+                if(last_id > to_id):
+                    break
+                else:
+                    since_id = last_id
+
+        k.close()
+
+
+    def launch_import_book_order(self):
+        k = krakenex.API()
+        try:
+            response = k.query_public('Depth', {'pair': self.name, 'count': 250})
+        except HTTPError as e:
+            print(str(e))
+
+        # trick to get the right name of the set
+        i = 0
+        title_ok = ''
+        for title in response['result']:
+            if (i == 0):
+                title_ok = title
+                pprint.pprint(title)
+            i = i + 1
+
+        Ask.objects.all().delete()
+        Bid.objects.all().delete()
+
+        for ask in response['result'][title_ok]['asks']:
+            if (Ask.objects.filter(timestamp=ask[2])):
+                pprint.pprint(self.name)
+                pprint.pprint("ask already exist")
+            else:
+                pprint.pprint(self.name)
+                pprint.pprint('ask')
+                pprint.pprint(ask)
+                new_ask = Ask.objects.create(pair=self,
+                                             price=ask[0],
+                                             volume=ask[1],
+                                             timestamp=ask[2])
+                new_ask.save()
+
+        for bid in response['result'][title_ok]['bids']:
+            if (Bid.objects.filter(timestamp=bid[2])):
+                pprint.pprint(self.name)
+                pprint.pprint("bid already exist")
+            else:
+                pprint.pprint(self.name)
+                pprint.pprint('bid')
+                pprint.pprint(bid)
+                new_bid = Bid.objects.create(pair=self,
+                                             price=bid[0],
+                                             volume=bid[1],
+                                             timestamp=bid[2])
+                new_bid.save()
+
+        k.close()
 
 
 class TradeValue(models.Model):

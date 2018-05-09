@@ -21,6 +21,9 @@ class Calcul(models.Model):
     def launch_calculation(self):
         pprint.pprint("need to have launch_calculation method")
 
+    def __str__(self):
+        return self.name
+
 
 class MovingAverageOnTradeValue(Calcul):
     delta = models.IntegerField(default=500)
