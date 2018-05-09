@@ -114,11 +114,16 @@ class Pair(models.Model):
 
 
 
-                last_id = int(response['result']['last'])
-                if(last_id > to_id):
-                    break
-                else:
-                    since_id = last_id
+
+            last_id = int(response['result']['last'])
+            if(last_id > to_id):
+                break
+            else:
+                pprint.pprint('last_id')
+                pprint.pprint(last_id)
+                pprint.pprint('to_id')
+                pprint.pprint(to_id)
+                since_id = last_id
 
         k.close()
 

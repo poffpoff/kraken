@@ -56,7 +56,7 @@ class CalculAdmin(admin.ModelAdmin):
         calcul.launch_calculation()
         self.message_user(request, 'Success')
         url = reverse(
-            'admin:calculator_movingaverageontrade_change',
+            'admin:calculator_movingaverageontradevalue_change',
             args=[calcul.pk],
             current_app=self.admin_site.name,
         )
