@@ -13,44 +13,54 @@ class ResultValueTime(models.Model):
     value = models.FloatField(blank=True)
     time = models.FloatField(blank=True)
 
-class Calcul(models.Model):
+class CalculOnTradeValue(models.Model):
     pair = models.ForeignKey(Pair, on_delete=models.CASCADE, default='0')
     name = models.CharField(max_length=200, default='')
     enabled = models.BooleanField(default=True)
 
-    def launch_calculation(self):
-        pprint.pprint("need to have launch_calculation method")
+    def get_result_list(self):
+        pprint.pprint("need to have get_result_list(self)")
 
-    def __str__(self):
-        return self.name
-
-
-class MovingAverageOnTradeValue(Calcul):
-    delta = models.IntegerField(default=500)
-
-
-    def chart(self):
-        tradeValue_set = TradeValue.objects.filter(pair = self.pair)
+    def get_data_list(self):
+        tradeValue_set = TradeValue.objects.filter(pair = self.pair).order_by('time')
         data_list = []
         for tradeValue in tradeValue_set :
             temp = [int(tradeValue.time*1000), tradeValue.price]
             data_list.append(temp)
 
-        result_set = ResultMovingAverageOnTradeValue.objects.filter(moving_average_on_trade_value = self)
-        moving_average_data_list = []
+        return data_list
 
+
+    def launch_calculation(self):
+        pprint.pprint("need to have launch_calculation method")
+
+    def chart(self):
+        data_list = self.get_data_list()
+        result_list = self.get_result_list()
+
+        data_dict = { 'data_list' : data_list,
+                      'title' : 'Calcul ' + self.name,
+                      'currency': self.pair.name[-3:],
+                      'result_list' : result_list,
+                      }
+        return render_to_string('admin/importer/pair/stock_chart.html', data_dict )
+
+    def __str__(self):
+        return self.name
+
+
+class MovingAverageOnTradeValue(CalculOnTradeValue):
+    delta = models.IntegerField(default=500)
+
+    def get_result_list(self):
+        result_set = ResultMovingAverageOnTradeValue.objects.filter(moving_average_on_trade_value = self).order_by('time')
+        result_list = []
         for result in result_set :
             if (result.value != 0) :
                 temp = [int(result.time*1000), result.value]
-                moving_average_data_list.append(temp)
+                result_list.append(temp)
 
-        data_dict = { 'data' : data_list,
-                      'title' : 'Trade Price ' + self.name,
-                      'currency': self.name[-3:],
-                      'name' : self.name,
-                      'moving_average_data' : moving_average_data_list,
-                      }
-        return render_to_string('admin/importer/pair/stock_chart.html', data_dict )
+        return result_list
 
     def launch_calculation(self):
         # get the las trade values since the last data save into the db
@@ -94,31 +104,18 @@ class MovingAverageOnTradeValue(Calcul):
 
 
 
-class LowPassOnTradeValue(Calcul):
+class LowPassOnTradeValue(CalculOnTradeValue):
     fc = models.IntegerField(default=500)
 
-
-    def chart(self):
-        tradeValue_set = TradeValue.objects.filter(pair = self.pair)
-        data_list = []
-        for tradeValue in tradeValue_set :
-            temp = [int(tradeValue.time*1000), tradeValue.price]
-            data_list.append(temp)
-
-        result_set = ResultLowPassOnTradeValue.objects.filter(low_pass_on_trade_value = self)
-        low_pass_data_list = []
-
+    def get_result_list(self):
+        result_set = ResultLowPassOnTradeValue.objects.filter(low_pass_on_trade_value = self).order_by('time')
+        result_list = []
         for result in result_set :
-            temp = [int(result.time*1000), result.value]
-            low_pass_data_list.append(temp)
+            if (result.value != 0) :
+                temp = [int(result.time*1000), result.value]
+                result_list.append(temp)
 
-        data_dict = { 'data' : data_list,
-                      'title' : 'Trade Price ' + self.name,
-                      'currency': self.name[-3:],
-                      'name' : self.name,
-                      'low_pass_data' : low_pass_data_list,
-                      }
-        return render_to_string('admin/importer/pair/stock_chart.html', data_dict )
+        return result_list
 
     def launch_calculation(self):
         delta = 100
@@ -183,6 +180,9 @@ class LowPassOnTradeValue(Calcul):
                     pprint.pprint(new_result.time)
                     new_result.save()
                 index = index + 1
+
+
+
 
 class ResultLowPassOnTradeValue(ResultValueTime):
     low_pass_on_trade_value = models.ForeignKey(LowPassOnTradeValue, on_delete=models.CASCADE, default='0')

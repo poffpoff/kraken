@@ -27,10 +27,11 @@ class Pair(models.Model):
         for tradeValue in tradeValue_set :
             temp = [int(tradeValue.time*1000), tradeValue.price]
             data_list.append(temp)
-        data_dict = { 'data' : data_list,
+        data_dict = {
+                      'data_list' : data_list,
                       'title' : 'Trade Price ' + self.name,
-                      'currency': self.name[-3:],
-                      'name' : self.name}
+                      'currency': self.name[-3:]
+                      }
         return render_to_string('admin/importer/pair/stock_chart.html', data_dict )
 
     def depth_chart(self):

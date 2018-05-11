@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 
-from calculator.models import MovingAverageOnTradeValue, ResultMovingAverageOnTradeValue, ResultLowPassOnTradeValue, LowPassOnTradeValue, ResultValueTime, Calcul
+from calculator.models import MovingAverageOnTradeValue, ResultMovingAverageOnTradeValue, ResultLowPassOnTradeValue, LowPassOnTradeValue, ResultValueTime, CalculOnTradeValue
 
 
 class ResultInline(admin.TabularInline):

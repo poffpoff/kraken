@@ -12,31 +12,26 @@ jQuery(document).ready(function() {
         title: {
             text: '{{title}}'
         },
-        series: [{
-            name: '{{name}}',
-            data: {{data}},
-            tooltip: {
-                valueDecimals: 2
-            }
-        }
-        {% if moving_average_data %}
-        ,{
-            name: 'moving_average_data',
-            data: {{moving_average_data}},
+        series: [
+        {% if data_list %}
+        {
+            name: 'data_list',
+            data: {{data_list}},
             tooltip: {
                 valueDecimals: 2
             }
         }
         {% endif %}
-        {% if low_pass_data %}
+        {% if result_list %}
         ,{
-            name: 'low_pass_data',
-            data: {{low_pass_data}},
+            name: 'result_list',
+            data: {{result_list}},
             tooltip: {
                 valueDecimals: 2
             }
         }
         {% endif %}
+
         ]
     });
 

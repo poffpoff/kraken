@@ -1,6 +1,6 @@
 from django.db import models
 from importer.models import Pair
-from calculator.models import Calcul
+from calculator.models import CalculOnTradeValue
 
 # Create your models here.
 
@@ -11,7 +11,7 @@ class Rule(models.Model):
 
 
 class RuleOn2Calculs(Rule):
-    data_1 = models.ForeignKey(Calcul, on_delete=models.CASCADE, default='0')
+    data_1 = models.ForeignKey(CalculOnTradeValue, on_delete=models.CASCADE, default='0')
 
     GT = 'GT'
     LT = 'LT'
