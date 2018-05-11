@@ -118,7 +118,7 @@ class LowPassOnTradeValue(CalculOnTradeValue):
         return result_list
 
     def launch_calculation(self):
-        delta = 100
+        delta = int(self.fc / 2)
         if (self.fc):
             # # get the las trade values since the last data save into the db
             time = ResultLowPassOnTradeValue.objects.filter(low_pass_on_trade_value=self).aggregate(Max('time', output_field=FloatField()))
