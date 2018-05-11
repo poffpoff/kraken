@@ -14,9 +14,128 @@ import krakenex
 
 
 class Pair(models.Model):
-    name = models.CharField(max_length=200, default='')
+    BCHEUR = 'BCHEUR'
+    BCHUSD = 'BCHUSD'
+    BCHXBT = 'BCHXBT'
+    DASHEUR = 'DASHEUR'
+    DASHUSD = 'DASHUSD'
+    DASHXBT = 'DASHXBT'
+    EOSETH = 'EOSETH'
+    EOSEUR = 'EOSEUR'
+    EOSUSD = 'EOSUSD'
+    EOSXBT = 'EOSXBT'
+    GNOETH = 'GNOETH'
+    GNOEUR = 'GNOEUR'
+    GNOUSD = 'GNOUSD'
+    GNOXBT = 'GNOXBT'
+    USDTUSD = 'USDTUSD'
+    ETCETH = 'ETCETH'
+    ETCXBT = 'ETCXBT'
+    ETCEUR = 'ETCEUR'
+    ETCUSD = 'ETCUSD'
+    ETHXBT = 'ETHXBT'
+    ETHCAD = 'ETHCAD'
+    ETHEUR = 'ETHEUR'
+    ETHGBP = 'ETHGBP'
+    ETHJPY = 'ETHJPY'
+    ETHUSD = 'ETHUSD'
+    ICNETH = 'ICNETH'
+    ICNXBT = 'ICNXBT'
+    LTCXBT = 'LTCXBT'
+    LTCEUR = 'LTCEUR'
+    LTCUSD = 'LTCUSD'
+    MLNETH = 'MLNETH'
+    MLNXBT = 'MLNXBT'
+    REPETH = 'REPETH'
+    REPXBT = 'REPXBT'
+    REPEUR = 'REPEUR'
+    REPUSD = 'REPUSD'
+    XBTCAD = 'XBTCAD'
+    XBTEUR = 'XBTEUR'
+    XBTGBP = 'XBTGBP'
+    XBTJPY = 'XBTJPY'
+    XBTUSD = 'XBTUSD'
+    XDGXBT = 'XDGXBT'
+    XLMXBT = 'XLMXBT'
+    XLMEUR = 'XLMEUR'
+    XLMUSD = 'XLMUSD'
+    XMRXBT = 'XMRXBT'
+    XMREUR = 'XMREUR'
+    XMRUSD = 'XMRUSD'
+    XRPXBT = 'XRPXBT'
+    XRPCAD = 'XRPCAD'
+    XRPEUR = 'XRPEUR'
+    XRPJPY = 'XRPJPY'
+    XRPUSD = 'XRPUSD'
+    ZECXBT = 'ZECXBT'
+    ZECEUR = 'ZECEUR'
+    ZECJPY = 'ZECJPY'
+    ZECUSD = 'ZECUSD'
+    PAIR_CHOICES = (
+        (BCHEUR, 'BCHEUR'),
+        (BCHUSD, 'BCHUSD'),
+        (BCHXBT, 'BCHXBT'),
+        (DASHEUR, 'DASHEUR'),
+        (DASHUSD, 'DASHUSD'),
+        (DASHXBT, 'DASHXBT'),
+        (EOSETH, 'EOSETH'),
+        (EOSEUR, 'EOSEUR'),
+        (EOSUSD, 'EOSUSD'),
+        (EOSXBT, 'EOSXBT'),
+        (GNOETH, 'GNOETH'),
+        (GNOEUR, 'GNOEUR'),
+        (GNOUSD, 'GNOUSD'),
+        (GNOXBT, 'GNOXBT'),
+        (USDTUSD, 'USDTUSD'),
+        (ETCETH, 'ETCETH'),
+        (ETCXBT, 'ETCXBT'),
+        (ETCEUR, 'ETCEUR'),
+        (ETCUSD, 'ETCUSD'),
+        (ETHXBT, 'ETHXBT'),
+        (ETHCAD, 'ETHCAD'),
+        (ETHEUR, 'ETHEUR'),
+        (ETHGBP, 'ETHGBP'),
+        (ETHJPY, 'ETHJPY'),
+        (ETHUSD, 'ETHUSD'),
+        (ICNETH, 'ICNETH'),
+        (ICNXBT, 'ICNXBT'),
+        (LTCXBT, 'LTCXBT'),
+        (LTCEUR, 'LTCEUR'),
+        (LTCUSD, 'LTCUSD'),
+        (MLNETH, 'MLNETH'),
+        (REPETH, 'REPETH'),
+        (REPXBT, 'REPXBT'),
+        (REPEUR, 'REPEUR'),
+        (REPUSD, 'REPUSD'),
+        (XBTCAD, 'XBTCAD'),
+        (XBTEUR, 'XBTEUR'),
+        (XBTGBP, 'XBTGBP'),
+        (XBTJPY, 'XBTJPY'),
+        (XBTUSD, 'XBTUSD'),
+        (XDGXBT, 'XDGXBT'),
+        (XLMXBT, 'XLMXBT'),
+        (XLMEUR, 'XLMEUR'),
+        (XLMUSD, 'XLMUSD'),
+        (XMRXBT, 'XMRXBT'),
+        (XMREUR, 'XMREUR'),
+        (XMRUSD, 'XMRUSD'),
+        (XRPXBT, 'XRPXBT'),
+        (XRPCAD, 'XRPCAD'),
+        (XRPEUR, 'XRPEUR'),
+        (XRPJPY, 'XRPJPY'),
+        (XRPUSD, 'XRPUSD'),
+        (ZECXBT, 'ZECXBT'),
+        (ZECEUR, 'ZECEUR'),
+        (ZECJPY, 'ZECJPY'),
+        (ZECUSD, 'ZECUSD'),
+    )
+
+
+    name = models.CharField(max_length=8, choices=PAIR_CHOICES, default=BCHEUR)
     enabled_auto_import = models.BooleanField(default=True)
     since = models.DateTimeField(default=timezone.now)
+
+
 
     def __str__(self):
         return self.name
