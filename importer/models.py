@@ -65,6 +65,7 @@ class Pair(models.Model):
         if(since is not 0):
             since_id = int(since * 1000000000)
         else:
+            since_id = 0
             pprint.pprint('since is  0')
             # get the las trade values since the last data save into the db
             since_max = TradeValue.objects.filter(pair_id=self.id).aggregate(Max('time', output_field=FloatField()))
@@ -73,7 +74,7 @@ class Pair(models.Model):
 
         while True:
             try:
-                if (since_id):
+                if (since_id is not 0):
                     response = k.query_public('Trades', {'pair': self.name, 'since': since_id})
                 else:
                     response = k.query_public('Trades', {'pair': self.name})
