@@ -1,5 +1,6 @@
 import datetime
 import pprint
+import time
 
 from django.db import models
 
@@ -8,9 +9,13 @@ from django.db.models import Sum, Max, FloatField
 from django.template.loader import render_to_string
 from django.utils import timezone
 from requests import HTTPError
-
-
 import krakenex
+# import the logging library
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 
 
 class Pair(models.Model):
@@ -179,27 +184,34 @@ class Pair(models.Model):
 
 
     def launch_import_trade_value(self, since=0):
+        t0 = time.time()
         k = krakenex.API()
-        to_id = int(datetime.datetime.now().timestamp() * 1000000000)
+        to_time = datetime.datetime.now()
+        to_id = int(to_time.timestamp() * 1000000000)
+        if(since is 0):
+            since = TradeValue.objects.filter(pair_id=self.id).aggregate(Max('time', output_field=FloatField()))['time__max']
+            logger.info("For pair " + self.name + " with id " + str(self.id) + " - Get the time of the last trade saved :" + str(since))
 
-        if(since is not 0):
+
+        if(since is not None):
+            since_date = datetime.datetime.fromtimestamp(int(since)).strftime('%Y-%m-%d %H:%M:%S')
             since_id = int(since * 1000000000)
+            logger.info("Start importing trade values for pair " + self.name + " with id " + str(self.id) + " since " + str(since_date) + " to " + str(to_time))
         else:
+            logger.info("Start importing the last 1000 trade values for pair " + self.name + " with id " + str(self.id))
             since_id = 0
-            pprint.pprint('since is  0')
-            # get the las trade values since the last data save into the db
-            since_max = TradeValue.objects.filter(pair_id=self.id).aggregate(Max('time', output_field=FloatField()))
-            if(since_max['time__max']) :
-                since_id = int(since * 1000000000)
 
+
+        nbr_of_new_import = 0
         while True:
+            nbr_of_new_import_in_the_loop = 0
             try:
                 if (since_id is not 0):
                     response = k.query_public('Trades', {'pair': self.name, 'since': since_id})
                 else:
                     response = k.query_public('Trades', {'pair': self.name})
             except HTTPError as e:
-                print(str(e))
+                logger.error(str(e))
 
             # trick to get the right name of the set
             i = 0
@@ -212,18 +224,14 @@ class Pair(models.Model):
             for title in response['result']:
                 if (i == 0):
                     title_ok = title
-                    pprint.pprint(title)
                 i = i + 1
 
             # save data into database only if the value with th same time doen't exist already
             for trade in response['result'][title_ok]:
+                nbr_of_new_import_in_the_loop = nbr_of_new_import_in_the_loop + 1
                 if (TradeValue.objects.filter(pair_id=self.id, time=trade[2])):
-                    pprint.pprint(self.name)
-                    pprint.pprint("trade already exist")
+                    logger.info("For pair " + self.name + " with id " + str(self.id) + " - Trade " + str(trade) + " already exist in database")
                 else:
-                    pprint.pprint(self.name)
-                    pprint.pprint('trade')
-                    pprint.pprint(trade)
                     new_trade = TradeValue.objects.create(pair=self,
                                                           price=trade[0],
                                                           volume=trade[1],
@@ -232,24 +240,35 @@ class Pair(models.Model):
                                                           ml=trade[4],
                                                           misce=trade[5])
                     new_trade.save()
+                    logger.info("For pair " + self.name + " with id " + str(self.id) + " - Trade " + str(trade) + " saved into database")
 
 
 
-
+            nbr_of_new_import = nbr_of_new_import + nbr_of_new_import_in_the_loop
             last_id = int(response['result']['last'])
             if(last_id > to_id):
                 break
             else:
-                pprint.pprint('last_id')
-                pprint.pprint(last_id)
-                pprint.pprint('to_id')
-                pprint.pprint(to_id)
-                since_id = last_id
+                if(nbr_of_new_import_in_the_loop is not 0):
+                    since_id = last_id
+                else:
+                    break
 
         k.close()
+        t1 = time.time()
+        duration = t1 - t0
+        if(nbr_of_new_import is not 0):
+            average = duration / nbr_of_new_import
+            logger.info("Summary : " + str(nbr_of_new_import) + " of new trade value in " + str(duration) + " seconds " + ", Average : " + str(average) + " seconds per trade value")
+        else:
+            logger.info("Summary : No new trade values")
+        logger.info("End importing trade values for pair " + self.name + " with id " + str(self.id))
 
 
     def launch_import_book_order(self):
+        t0 = time.time()
+        logger.info("Start importing book orders for pair " + self.name + " with id " + str(self.id))
+
         k = krakenex.API()
         try:
             response = k.query_public('Depth', {'pair': self.name, 'count': 250})
@@ -262,42 +281,45 @@ class Pair(models.Model):
         for title in response['result']:
             if (i == 0):
                 title_ok = title
-                pprint.pprint(title)
             i = i + 1
 
         Ask.objects.all().delete()
         Bid.objects.all().delete()
 
+        nbr_of_new_bid_import = 0
+        nbr_of_new_ask_import = 0
+
         for ask in response['result'][title_ok]['asks']:
+            nbr_of_new_ask_import = nbr_of_new_ask_import +1
             if (Ask.objects.filter(pair=self, timestamp=ask[2])):
-                pprint.pprint(self.name)
-                pprint.pprint("ask already exist")
+                logger.info("For pair " + self.name + " with id " + str(self.id) + " - Ask " + str(ask) + " already exist in database")
             else:
-                pprint.pprint(self.name)
-                pprint.pprint('ask')
-                pprint.pprint(ask)
                 new_ask = Ask.objects.create(pair=self,
                                              price=ask[0],
                                              volume=ask[1],
                                              timestamp=ask[2])
                 new_ask.save()
+                logger.info("For pair " + self.name + " with id " + str(self.id) + " - Ask " + str(ask) + " saved into database")
+
 
         for bid in response['result'][title_ok]['bids']:
+            nbr_of_new_bid_import = nbr_of_new_bid_import +1
             if (Bid.objects.filter(pair_id=self.id, timestamp=bid[2])):
-                pprint.pprint(self.name)
-                pprint.pprint("bid already exist")
+                logger.info("For pair " + self.name + " with id " + str(self.id) + " - Bid " + str(bid) + " already exist in database")
             else:
-                pprint.pprint(self.name)
-                pprint.pprint('bid')
-                pprint.pprint(bid)
                 new_bid = Bid.objects.create(pair=self,
                                              price=bid[0],
                                              volume=bid[1],
                                              timestamp=bid[2])
                 new_bid.save()
+                logger.info("For pair " + self.name + " with id " + str(self.id) + " - Bid " + str(bid) + " saved into database")
 
         k.close()
-
+        t1 = time.time()
+        duration = t1 - t0
+        average = duration / ( nbr_of_new_ask_import + nbr_of_new_bid_import)
+        logger.info("Summary : " + str(nbr_of_new_ask_import) + " of new ask and " +str(nbr_of_new_bid_import) + " of new bid in " + str(duration) + " seconds " + ", Average : " + str(average) + " seconds per order")
+        logger.info("End importing trade values for pair " + self.name + " with id " + str(self.id))
 
 class TradeValue(models.Model):
     pair = models.ForeignKey(Pair, on_delete=models.CASCADE, default='0')

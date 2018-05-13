@@ -6,6 +6,11 @@ from django.utils.html import format_html
 
 from importer.models import Pair , TradeValue, Ask, Bid
 
+# import the logging library
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 class AskInline(admin.TabularInline):
     model = Ask
@@ -78,7 +83,9 @@ class PairAdmin(admin.ModelAdmin):
 
     def process_import(self, request, pair_id, *args, **kwargs):
         pair = Pair.objects.get(id = pair_id)
+        logger.info("For pair " + pair.name + " with id " + str(pair.id) + " - Start manually import of trades value since " + str(pair.since) + " and book orders ")
         pair.launch_import_trade_value(pair.since.timestamp())
+        pair.launch_import_book_order()
         self.message_user(request, 'Success')
         url = reverse(
             'admin:importer_pair_change',
